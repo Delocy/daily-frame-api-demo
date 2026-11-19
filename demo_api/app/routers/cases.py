@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+import random
 
 from ..models import CaseOut
 
@@ -13,6 +14,15 @@ def today_case() -> CaseOut:
     if not CASES:
         raise HTTPException(404, "No cases loaded")
     return next(iter(CASES.values()))
+
+
+@router.get("/random", response_model=CaseOut)
+def random_case(exclude: str | None = None) -> CaseOut:
+    """A practice case, never the one passed in `exclude`."""
+    pool = [c for cid, c in CASES.items() if cid != exclude]
+    if not pool:
+        raise HTTPException(404, "No practice cases")
+    return random.choice(pool)
 
 
 @router.get("/{case_id}", response_model=CaseOut)
