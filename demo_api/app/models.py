@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel
 
 
@@ -22,11 +24,13 @@ class CaseOut(BaseModel):
 class AttemptIn(BaseModel):
     case_id: str
     picks: dict[str, str]
+    mode: str
 
 
 class SlotResult(BaseModel):
     slot: str
     kind: str
+    why: str | None = None
 
 
 class AttemptResult(BaseModel):
@@ -40,3 +44,4 @@ class Stats(BaseModel):
     wins: int
     streak: int
     max_streak: int
+    last_played: date | None = None
