@@ -1,3 +1,4 @@
+# From https://github.com/Delocy/merge-docs/tree/main/examples
 name: API changes
 
 on:
@@ -9,16 +10,15 @@ permissions:
   pull-requests: write
   issues: write
 
+# One run per PR at a time, so quick pushes can't race to create duplicate comments.
+concurrency:
+  group: api-changes-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: Delocy/merge-docs@v1
         with:
-          python-version: "3.12"
-      - run: pip install ./tools/merge-docs
-      - name: Post or update the API changes comment
-        run: python -m merge_docs.cli.pr_comment
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          command: pr-comment

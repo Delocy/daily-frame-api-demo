@@ -1,34 +1,30 @@
-name: Catalogue
+# From https://github.com/Delocy/merge-docs/tree/main/examples
+# Change `main` below if your default branch has another name.
+name: API catalogue
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pull-requests: read
-  pages: write
-  id-token: write
+permissions: {}
 
+# Don't cancel a deploy that's already running; queue the next one instead.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: Delocy/merge-docs@v1
         with:
-          python-version: "3.12"
-      - run: pip install ./tools/merge-docs
-      - name: Build the static catalogue
-        run: python -m merge_docs.cli.build_site --repo-dir . --repo "$GITHUB_REPOSITORY" --out site --changes 10
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/configure-pages@v5
+          command: build-site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
@@ -36,6 +32,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
